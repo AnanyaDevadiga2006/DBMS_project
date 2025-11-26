@@ -1,10 +1,27 @@
 <!DOCTYPE html>
 <html>
-<head><title>DPMS - Home</title><link rel="stylesheet" href="/static/style.css"></head>
-<body><h1>Department Performance Monitoring System</h1>
+<head>
+    <title>DPMS - Home</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<h1>Department Performance Monitoring System</h1>
+
+{% if teacher_name %}
+    <p>
+        Logged in as: <strong>{{ teacher_name }}</strong>
+        (<a href="{{ url_for('logout') }}">Logout</a>)
+    </p>
+{% else %}
+    <p>
+        <a href="{{ url_for('login') }}">Teacher Login</a>
+    </p>
+{% endif %}
+
 <div class="menu">
-<a href="/add-student-page">Add Student</a>
-<a href="/add-teacher-page">Add Teacher</a>
-<a href="/add-marks-page">Add Marks</a>
-<a href="/monitor">Monitor Performance</a>
-</div></body></html>
+    <a href="/add-student-page">Add Student</a>
+    <a href="/add-marks-page">Add Marks</a>
+    <a href="/red-report">Report</a>
+</div>
+</body>
+</html>

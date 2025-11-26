@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teacher Login</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<h2>Teacher Login</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <ul>
+      {% for cat, msg in messages %}
+        <li class="flash {{ cat }}">{{ msg }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+
+<form method="post" action="{{ url_for('login') }}">
+    <label for="teacher_name">Enter Your Name:</label>
+    <input type="text" id="teacher_name" name="teacher_name" placeholder="Enter teacher name" required>
+    <button type="submit">Login</button>
+</form>
+
+<hr>
+
+<form action="/add-teacher-page" method="GET" style="display:inline;">
+    <button type="submit" class="menu-btn">Add Teacher</button>
+</form>
+
+</body>
+</html>

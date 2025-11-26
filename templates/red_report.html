@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Red Band Report</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <form action="/monitor" method="GET" style="display:inline;">
+    <button type="submit" class="menu-btn">Monitor</button>
+</form>
+<p><a href="{{ url_for('index') }}" class="back">← Back to Home</a></p>
+<h2>Red Band Dashboard</h2>
+
+<p>
+    Logged in as: <strong>{{ teacher_name }}</strong>
+    (<a href="{{ url_for('logout') }}">Logout</a>)
+</p>
+
+<h3>Summary: Red Band Students per Course</h3>
+
+{% if summary %}
+    <table>
+        <tr>
+            <th>Course Code</th>
+            <th>Number of Red Band Students</th>
+        </tr>
+        {% for row in summary %}
+        <tr>
+            <td>{{ row.course_code }}</td>
+            <td>{{ row.red_count }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No students in red band for your courses.</p>
+{% endif %}
+
+<hr>
+
+<h3>Details: Students in Red Band</h3>
+
+{% if details %}
+    <table>
+        <tr>
+            <th>Course Code</th>
+            <th>Student Name</th>
+            <th>USN</th>
+            <th>Total Score</th>
+        </tr>
+        {% for d in details %}
+        <tr class="red-row">
+            <td>{{ d.course_code }}</td>
+            <td>{{ d.student_name }}</td>
+            <td>{{ d.usn }}</td>
+            <td>{{ d.total_score }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% else %}
+    <p>No students currently in red band.</p>
+{% endif %}
+
+</body>
+</html>
