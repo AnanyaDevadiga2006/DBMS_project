@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html><head><title>Monitor</title><link rel="stylesheet" href="/static/style.css"></head>
+<body><h2>Student Performance Monitor</h2>
+<table><tr><th>Name</th><th>USN</th><th>Course</th><th>Total</th><th>Category</th><th>Supplementary Teacher</th></tr>
+{% for row in rows %}
+<tr class="{% if row.category=='red' %}red-row{% elif row.category=='yellow' %}yellow-row{% else %}green-row{% endif %}">
+<td>{{ row.student_name }}</td>
+<td>{{ row.usn }}</td>
+<td>{{ row.course_code }}</td>
+<td>{{ row.total_score }}</td>
+<td>{{ row.category }}</td>
+<td>{{ row.teacher_id or '-' }}</td>
+</tr>
+{% endfor %}
+</table><a href="/" class="back">← Back</a></body></html>

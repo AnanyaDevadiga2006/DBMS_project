@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Student</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<h2 class="title">Add Student</h2>
+
+<div class="container">
+    <form action="/add-student" method="POST" class="form-box">
+
+        <div class="form-group">
+            <label>Name</label>
+            <input name="name" type="text" placeholder="Enter student name" required>
+        </div>
+
+        <div class="form-group">
+            <label>USN</label>
+            <input name="usn" type="text" placeholder="4NM22CS001" required>
+        </div>
+
+        <div class="form-group">
+            <label>Semester</label>
+            <input type="number" name="sem" min="1" max="8" placeholder="1–8" required>
+        </div>
+
+        <div class="form-group">
+            <label>Section</label>
+            <input name="section" type="text" placeholder="A / B / C" required>
+        </div>
+
+        <button type="submit" class="btn-submit">Save Student</button>
+    </form>
+
+    <a href="/" class="back">← Back to Home</a>
+</div>
+
+</body>
+</html>

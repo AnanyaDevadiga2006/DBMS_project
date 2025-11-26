@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add Marks</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<h2>Add Marks</h2>
+
+<form action="/add-marks" method="POST" class="form-box">
+
+    <label>USN</label>
+    <input type="text" name="usn" required>
+
+    <label>Course Code</label>
+    <input type="text" name="course" required>
+
+    <label>IA1</label>
+    <input type="number" name="ia1" min="0" max="30" required>
+
+    <label>IA2</label>
+    <input type="number" name="ia2" min="0" max="30" required>
+
+    <label>IA3</label>
+    <input type="number" name="ia3" min="0" max="30" required>
+
+    <label>Assignment</label>
+    <input type="number" name="assignment" min="0" max="20" required>
+
+    <button type="submit">Save Marks</button>
+</form>
+
+<a href="/" class="back">← Back</a>
+
+</body>
+</html>
