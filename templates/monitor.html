@@ -1,43 +1,56 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <title>Monitor</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="utf-8" />
+  <title>Monitor — DPMS</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-<h2>Student Performance Monitor</h2>
+<header class="topbar-min">
+  <div class="brand-min">DPMS</div>
+  <nav class="nav-min">
+    <a href="/">Dashboard</a>
+    <a href="/monitor" class="active">Monitor</a>
+    <a href="/students">Students</a>
+  </nav>
+</header>
 
-{% if teacher_name %}
-    <p>
-        Logged in as: <strong>{{ teacher_name }}</strong>
-        (<a href="{{ url_for('logout') }}">Logout</a>)
-    </p>
-{% else %}
-    <p>
-        <a href="{{ url_for('login') }}">Teacher Login</a>
-    </p>
-{% endif %}
-
-<table>
-    <tr>
-        <th>Name</th>
-        <th>USN</th>
-        <th>Course</th>
-        <th>Total</th>
-        <th>Category</th>
-    </tr>
-
-    {% for row in rows %}
-        <tr class="{% if row.category=='red' %}red-row{% elif row.category=='yellow' %}yellow-row{% else %}green-row{% endif %}">
-            <td>{{ row.student_name }}</td>
-            <td>{{ row.usn }}</td>
-            <td>{{ row.course_code }}</td>
-            <td>{{ row.total_score }}</td>
-            <td>{{ row.category }}</td>
+<main class="container">
+  <h1>Performance Monitor</h1>
+  <div class="panel table-panel">
+    <table class="clean-table">
+      <thead>
+        <tr>
+          <th>Student</th>
+          <th>USN</th>
+          <th>Course</th>
+          <th>Total Score</th>
+          <th>Band</th>
+          <th>Supp Teacher</th>
         </tr>
-    {% endfor %}
-</table>
-
-<a href="/" class="back">← Back</a>
+      </thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td>{{ r.student_name or '-' }}</td>
+          <td>{{ r.usn or '-' }}</td>
+          <td>{{ r.course_code or '-' }}</td>
+          <td>{{ r.total_score or '-' }}</td>
+          <td>
+            {% if r.category == 'green' %}<span class="pill green">Green</span>
+            {% elif r.category == 'yellow' %}<span class="pill yellow">Yellow</span>
+            {% elif r.category == 'red' %}<span class="pill red">Red</span>
+            {% else %}<span class="pill">—</span>{% endif %}
+          </td>
+          <td>{{ r.supp_teacher_name or '-' }}</td>
+        </tr>
+      {% else %}
+        <tr><td colspan="6">No records found</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</main>
 </body>
 </html>

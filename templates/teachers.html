@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Teachers — DPMS</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<header class="topbar-min">
+  <div class="brand-min">DPMS</div>
+  <nav class="nav-min">
+    <a href="/">Dashboard</a>
+    <a href="/students">Students</a>
+    <a href="/teachers" class="active">Teachers</a>
+    <a href="/add-marks-page">Enter Marks</a>
+    <a href="/logout">Logout</a>
+  </nav>
+</header>
+
+<main class="container">
+  <div class="page-header">
+    <h1>Teachers</h1>
+    <a class="btn primary" href="/add-teacher-page">+ Add Teacher</a>
+  </div>
+
+  <div class="cards-grid">
+    {% for t in teachers %}
+      <div class="teacher-card">
+        <div class="tc-top">
+          <div class="tc-avatar">{{ t.teacher_name[0]|upper }}</div>
+          <div>
+            <div class="name">{{ t.teacher_name }}</div>
+            <div class="muted">{{ t.course_code }}</div>
+          </div>
+        </div>
+
+        <div class="tc-bottom">
+          <div>Credit: {{ t.credit or '-' }}</div>
+          <div class="actions">
+            <a class="btn small" href="#">Edit</a>
+            <a class="btn small ghost" href="#">Delete</a>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="panel">No teachers found.</div>
+    {% endfor %}
+  </div>
+</main>
+</body>
+</html>

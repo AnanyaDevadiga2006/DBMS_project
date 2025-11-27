@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Students — DPMS</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<header class="topbar-min">
+  <div class="brand-min">DPMS</div>
+  <nav class="nav-min">
+    <a href="/">Dashboard</a>
+    <a href="/students" class="active">Students</a>
+    <a href="/teachers">Teachers</a>
+    <a href="/add-marks-page">Enter Marks</a>
+    <a href="/logout">Logout</a>
+  </nav>
+</header>
+
+<main class="container">
+  <div class="page-header">
+    <h1>Students</h1>
+    <a class="btn primary" href="/add-student-page">+ Add Student</a>
+  </div>
+
+  <div class="cards-grid">
+    {% for s in students %}
+      <div class="profile-card">
+        <div class="profile-left">
+          <div class="avatar">{{ s.student_name[0]|upper }}</div>
+          <div>
+            <div class="name">{{ s.student_name }}</div>
+            <div class="muted">{{ s.usn }}</div>
+          </div>
+        </div>
+
+        <div class="profile-right">
+          <div>Sem: {{ s.sem or '-' }}</div>
+          <div>Sec: {{ s.section or '-' }}</div>
+          <div class="actions">
+            <a class="btn small" href="#">View</a>
+            <a class="btn small ghost" href="#">Edit</a>
+          </div>
+        </div>
+      </div>
+    {% else %}
+      <div class="panel">No students found.</div>
+    {% endfor %}
+  </div>
+</main>
+</body>
+</html>

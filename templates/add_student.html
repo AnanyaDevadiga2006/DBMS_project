@@ -1,42 +1,34 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <title>Add Student</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="utf-8" />
+  <title>Add Student — DPMS</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/static/style.css" />
 </head>
-
 <body>
+<header class="topbar-min">
+  <div class="brand-min">DPMS</div>
+  <nav class="nav-min">
+    <a href="/">Dashboard</a>
+    <a href="/students" class="active">Students</a>
+    <a href="/teachers">Teachers</a>
+  </nav>
+</header>
 
-<h2 class="title">Add Student</h2>
-
-<div class="container">
-    <form action="/add-student" method="POST" class="form-box">
-
-        <div class="form-group">
-            <label>Name</label>
-            <input name="name" type="text" placeholder="Enter student name" required>
-        </div>
-
-        <div class="form-group">
-            <label>USN</label>
-            <input name="usn" type="text" placeholder="4NM22CS001" required>
-        </div>
-
-        <div class="form-group">
-            <label>Semester</label>
-            <input type="number" name="sem" min="1" max="8" placeholder="1–8" required>
-        </div>
-
-        <div class="form-group">
-            <label>Section</label>
-            <input name="section" type="text" placeholder="A / B / C" required>
-        </div>
-
-        <button type="submit" class="btn-submit">Save Student</button>
+<main class="container narrow">
+  <div class="panel form-panel">
+    <h2>Add New Student</h2>
+    <form action="/add-student" method="POST" class="form-grid">
+      <label>Full Name<input type="text" name="name" required></label>
+      <label>USN<input type="text" name="usn" required></label>
+      <label>Semester<input type="number" name="sem" required></label>
+      <label>Section<input type="text" name="section" required></label>
+      <div class="form-actions">
+        <button class="btn primary">Save Student</button>
+      </div>
     </form>
-
-    <a href="/" class="back">← Back to Home</a>
-</div>
-
+  </div>
+</main>
 </body>
 </html>

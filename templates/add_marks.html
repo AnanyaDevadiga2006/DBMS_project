@@ -1,38 +1,59 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-    <title>Add Marks</title>
-    <link rel="stylesheet" href="/static/style.css">
+  <meta charset="utf-8" />
+  <title>Enter Marks — DPMS</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/static/style.css" />
 </head>
-
 <body>
+<header class="topbar-min">
+  <div class="brand-min">DPMS</div>
+  <nav class="nav-min">
+    <a href="/">Dashboard</a>
+    <a href="/students">Students</a>
+    <a href="/teachers">Teachers</a>
+  </nav>
+</header>
 
-<h2>Add Marks</h2>
+<main class="container narrow">
+  <div class="panel form-panel">
+    <h2>Enter Marks</h2>
+    <form action="/add-marks" method="POST" class="form-grid">
+      <label>Select Student (USN)
+        <select name="usn" required>
+          <option value="">-- pick student --</option>
+          {% for s in students %}
+            <option value="{{ s.usn }}">{{ s.student_name }} — {{ s.usn }}</option>
+          {% endfor %}
+        </select>
+      </label>
 
-<form action="/add-marks" method="POST" class="form-box">
+      <label>Course Code
+        <input type="text" name="course" placeholder="CS202" required>
+      </label>
 
-    <label>USN</label>
-    <input type="text" name="usn" required>
+      <label>IA1 (out of 30)
+        <input type="number" name="ia1" min="0" max="30" value="0" required>
+      </label>
 
-    <label>Course Code</label>
-    <input type="text" name="course" required>
+      <label>IA2 (out of 30)
+        <input type="number" name="ia2" min="0" max="30" value="0" required>
+      </label>
 
-    <label>IA1</label>
-    <input type="number" name="ia1" min="0" max="30" required>
+      <label>IA3 (out of 30)
+        <input type="number" name="ia3" min="0" max="30" value="0" required>
+      </label>
 
-    <label>IA2</label>
-    <input type="number" name="ia2" min="0" max="30" required>
+      <label>Assignment (out of 20)
+        <input type="number" name="assignment" min="0" max="20" value="0" required>
+      </label>
 
-    <label>IA3</label>
-    <input type="number" name="ia3" min="0" max="30" required>
-
-    <label>Assignment</label>
-    <input type="number" name="assignment" min="0" max="20" required>
-
-    <button type="submit">Save Marks</button>
-</form>
-
-<a href="/" class="back">← Back</a>
-
+      <div class="form-actions">
+        <button class="btn primary">Save Marks</button>
+      </div>
+    </form>
+  </div>
+</main>
 </body>
 </html>

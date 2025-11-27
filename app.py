@@ -1,69 +1,149 @@
-# app.py — Flask 3.x + SQLAlchemy + SQLite triggers + Teacher login
-
 from flask import (
-    Flask,
-    render_template,
-    request,
-    redirect,
-    url_for,
-    abort,
-    session,
-    flash,
+    Flask, render_template, request, redirect,
+    url_for, abort, session, flash
 )
 from models import db, Student, Teacher, Marks, Supplementary
-from sqlalchemy import and_, or_, func, text
+from sqlalchemy import func, text, and_, or_
 import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dpms.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = 'change-this-to-something-random'  # for sessions
+app.config['SECRET_KEY'] = 'your-secret-key'
 db.init_app(app)
 
 
-# ---- Initialize DB and apply triggers.sql if present ----
+# ---------------------------------------------------
+# INITIALIZE DB + TRIGGERS
+# ---------------------------------------------------
 with app.app_context():
     db.create_all()
 
     trig_path = os.path.join(os.path.dirname(__file__), "triggers.sql")
     if os.path.exists(trig_path):
-        with open(trig_path, "r", encoding="utf-8") as f:
-            sql_script = f.read()
-
-        # Split on ";" and execute each non-empty statement
-        for stmt in sql_script.split(";"):
+        sql = open(trig_path, "r", encoding="utf-8").read()
+        for stmt in sql.split(";"):
             stmt = stmt.strip()
-            if not stmt:
-                continue  # skip empty chunks
-
-            try:
-                db.session.execute(text(stmt))
-            except Exception as e:
-                # For debugging; in production you might want to log this
-                print("Warning while applying trigger statement:", e)
-
+            if stmt:
+                try:
+                    db.session.execute(text(stmt))
+                except Exception as e:
+                    print("Trigger Warning:", e)
         db.session.commit()
 
 
-# ---------------------------
-# HOME
-# ---------------------------
+# ---------------------------------------------------
+# LOGIN
+# ---------------------------------------------------
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if session.get("teacher_name"):
+        return redirect(url_for("index"))
+
+    if request.method == "POST":
+        name = request.form.get("teacher_name", "").strip()
+
+        teacher = Teacher.query.filter(
+            func.lower(Teacher.teacher_name) == name.lower()
+        ).first()
+
+        if not teacher:
+            flash("Teacher not found", "error")
+            return redirect("/login")
+
+        session["teacher_name"] = teacher.teacher_name
+        return redirect("/")
+
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/login")
+
+
+# ---------------------------------------------------
+# DASHBOARD (Figma-style)
+# ---------------------------------------------------
 @app.route("/")
 def index():
     if not session.get("teacher_name"):
-        return redirect(url_for("login"))  # force login
-    return render_template("index.html", teacher_name=session.get("teacher_name"))
+        return redirect("/login")
+
+    total_students = Student.query.count()
+    total_teachers = Teacher.query.count()
+
+    avg_score = db.session.query(func.avg(Marks.total_score)).scalar() or 0
+    avg_score = round(avg_score, 2)
+
+    band_counts = {
+        "green": Marks.query.filter_by(category="green").count(),
+        "yellow": Marks.query.filter_by(category="yellow").count(),
+        "red": Marks.query.filter_by(category="red").count()
+    }
+
+    supp_count = Supplementary.query.count()
+
+    # Teachers per course
+    dept_labels = []
+    dept_counts = []
+
+    courses = (
+        db.session.query(Teacher.course_code, func.count(Teacher.teacher_id))
+        .group_by(Teacher.course_code)
+        .all()
+    )
+
+    for course, count in courses:
+        dept_labels.append(course)
+        dept_counts.append(count)
+
+    # --- TOP STUDENTS (computed in Python, not in template)
+    top_students = (
+        db.session.query(Student.student_name, Marks.total_score)
+        .join(Marks, Student.student_id == Marks.student_id)
+        .order_by(Marks.total_score.desc())
+        .limit(3)
+        .all()
+    )
+
+    # --- AT-RISK (red band) list (name, usn, total_score)
+    at_risk = (
+        db.session.query(Student.student_name, Student.usn, Marks.total_score)
+        .join(Marks, Student.student_id == Marks.student_id)
+        .filter(Marks.category == "red")
+        .order_by(Marks.total_score.asc())
+        .limit(10)
+        .all()
+    )
+
+    return render_template(
+        "index.html",
+        teacher_name=session.get("teacher_name"),
+
+        total_students=total_students,
+        total_teachers=total_teachers,
+        avg_score=avg_score,
+        supp_count=supp_count,
+
+        band_counts=band_counts,
+        dept_labels=dept_labels,
+        dept_counts=dept_counts,
+
+        top_students=top_students,
+        at_risk=at_risk
+    )
 
 
-@app.route("/home")
-def home():
-    # just redirect /home -> /
-    return redirect(url_for("index"))
+# ---------------------------------------------------
+# STUDENTS
+# ---------------------------------------------------
+@app.route("/students")
+def students():
+    return render_template("students.html", students=Student.query.all())
 
 
-# ---------------------------
-# STUDENT: pages + action
-# ---------------------------
 @app.route("/add-student-page")
 def add_student_page():
     return render_template("add_student.html")
@@ -72,28 +152,27 @@ def add_student_page():
 @app.route("/add-student", methods=["POST"])
 def add_student():
     data = request.form
-    name = data.get("name")
-    usn = data.get("usn")
-    sem = data.get("sem")
-    section = data.get("section")
 
-    if not name or not usn:
-        abort(400, "Name and USN are required")
+    s = Student(
+        student_name=data.get("name"),
+        usn=data.get("usn"),
+        sem=int(data.get("sem") or 0),
+        section=data.get("section")
+    )
 
-    try:
-        sem_val = int(sem) if sem not in (None, "") else None
-    except ValueError:
-        abort(400, "Semester must be an integer")
-
-    s = Student(student_name=name, usn=usn, sem=sem_val, section=section)
     db.session.add(s)
     db.session.commit()
-    return redirect(url_for("index"))
+    return redirect("/students")
 
 
-# ---------------------------
-# TEACHER: pages + action
-# ---------------------------
+# ---------------------------------------------------
+# TEACHERS
+# ---------------------------------------------------
+@app.route("/teachers")
+def teachers():
+    return render_template("teachers.html", teachers=Teacher.query.all())
+
+
 @app.route("/add-teacher-page")
 def add_teacher_page():
     return render_template("add_teacher.html")
@@ -102,242 +181,113 @@ def add_teacher_page():
 @app.route("/add-teacher", methods=["POST"])
 def add_teacher():
     data = request.form
-    name = data.get("name")
-    course = data.get("course")
-    credit = data.get("credit")
-
-    if not name or not course:
-        abort(400, "Teacher name and course code are required")
-
-    try:
-        credit_val = int(credit) if credit not in (None, "") else None
-    except ValueError:
-        abort(400, "Credit must be an integer")
-
-    # one teacher can appear multiple times with different course_code
-    t = Teacher(teacher_name=name, course_code=course, credit=credit_val)
+    t = Teacher(
+        teacher_name=data.get("name"),
+        course_code=data.get("course"),
+        credit=int(data.get("credit") or 0)
+    )
     db.session.add(t)
     db.session.commit()
-    return redirect(url_for("index"))
+    return redirect("/teachers")
 
 
-# ---------------------------
-# MARKS: pages + action
-# ---------------------------
+# ---------------------------------------------------
+# MARKS
+# ---------------------------------------------------
 @app.route("/add-marks-page")
 def add_marks_page():
-    # Provide students and teachers for dropdowns (prevents null student_id)
-    students = Student.query.order_by(Student.student_name).all()
-    teachers = Teacher.query.order_by(Teacher.course_code).all()
-    return render_template("add_marks.html", students=students, teachers=teachers)
+    return render_template(
+        "add_marks.html",
+        students=Student.query.all(),
+        teachers=Teacher.query.all()
+    )
 
 
-@app.route('/add-marks', methods=['POST'])
+@app.route("/add-marks", methods=["POST"])
 def add_marks():
     data = request.form
     usn = data.get("usn")
-
-    # Find student by USN
     student = Student.query.filter_by(usn=usn).first()
 
     if not student:
-        return "Error: USN not found in database", 400
+        return "USN not found", 400
 
-    # Create marks record using student_id from DB
     m = Marks(
         student_id=student.student_id,
         course_code=data.get("course"),
-        ia1=data.get("ia1"),
-        ia2=data.get("ia2"),
-        ia3=data.get("ia3"),
-        assignment=data.get("assignment")
+        ia1=int(data.get("ia1") or 0),
+        ia2=int(data.get("ia2") or 0),
+        ia3=int(data.get("ia3") or 0),
+        assignment=int(data.get("assignment") or 0)
     )
 
     db.session.add(m)
     db.session.commit()
-
-    return redirect('/monitor')
-
-
-# ---------------------------
-# TEACHER LOGIN (no password)
-# ---------------------------
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    # already logged in? straight to home
-    if session.get("teacher_name"):
-        return redirect(url_for("index"))
-
-    if request.method == "POST":
-        raw_name = request.form.get("teacher_name", "")
-        teacher_name = raw_name.strip()
-
-        if not teacher_name:
-            flash("Please enter your name.", "error")
-            return redirect(url_for("login"))
-
-        # Case-insensitive + trimmed match against DB
-        teacher = Teacher.query.filter(
-            func.lower(func.trim(Teacher.teacher_name)) == teacher_name.lower()
-        ).first()
-
-        if not teacher:
-            flash("Teacher not found. Check spelling.", "error")
-            # Debug in console
-            all_teachers = [t.teacher_name for t in Teacher.query.all()]
-            print("DEBUG: Teacher not found for input:", repr(teacher_name))
-            print("DEBUG: Existing teachers:", all_teachers)
-            return redirect(url_for("login"))
-
-        # save NORMALIZED name in session (exact from DB)
-        session["teacher_name"] = teacher.teacher_name
-        return redirect(url_for("index"))
-
-    # GET: simple typed login page (template does not need teacher_names)
-    return render_template("login.html")
+    return redirect("/monitor")
 
 
-@app.route("/red-report")
-def red_report():
-    # Require login: only logged-in teachers can see this
-    teacher_name = session.get("teacher_name")
-    if not teacher_name:
-        return redirect(url_for("login"))
-
-    # Find all courses this teacher handles
-    teacher_rows = Teacher.query.filter_by(teacher_name=teacher_name).all()
-    if not teacher_rows:
-        # no courses for this teacher -> empty report
-        summary = []
-        details = []
-        return render_template(
-            "red_report.html",
-            summary=summary,
-            details=details,
-            teacher_name=teacher_name
+@app.route("/supplementary")
+def supplementary():
+    records = (
+        db.session.query(
+            Student.student_name,
+            Student.usn,
+            Supplementary.course_code,
+            Teacher.teacher_name.label("assigned_teacher")
         )
-
-    course_codes = [t.course_code for t in teacher_rows]
-    lower_course_codes = [c.lower() for c in course_codes]
-
-
-    # SUMMARY: how many red-band students per course (for this teacher)
-    summary_query = db.session.query(
-        Marks.course_code,
-        func.count(Marks.mark_id).label("red_count")
-    ).filter(
-        Marks.category == "red",
-        func.lower(Marks.course_code).in_(lower_course_codes)
-    ).group_by(
-        Marks.course_code
+        .join(Supplementary, Student.student_id == Supplementary.student_id)
+        .join(Teacher, Teacher.teacher_id == Supplementary.teacher_id)
+        .order_by(Student.student_name)
+        .all()
     )
 
-    summary = summary_query.all()
+    return render_template("supplementary.html", records=records)
 
-    # DETAILS: which students are red in which course
-    # make all course codes lowercase once
-    
-    details_query = db.session.query(
-        Student.student_name,
-        Student.usn,
-        Marks.course_code,
-        Marks.total_score
-    ).join(
-        Marks, Student.student_id == Marks.student_id
-    ).filter(
-        Marks.category == "red",
-        func.lower(Marks.course_code).in_(lower_course_codes)
-    ).order_by(
-        Marks.course_code,
-        Student.student_name
-    )
-
-
-    details = details_query.all()
-
-    return render_template(
-        "red_report.html",
-        summary=summary,
-        details=details,
-        teacher_name=teacher_name
-    )
-
-
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("login"))
-
-
-# ---------------------------
-# MONITOR page (dashboard)
-# ---------------------------
+# ---------------------------------------------------
+# MONITOR
+# ---------------------------------------------------
 @app.route("/monitor")
 def monitor():
-    # if a teacher is logged in, restrict view
-    teacher_name = session.get("teacher_name")
-
-    # base query: students + marks + supplementary teacher name
-    base_query = db.session.query(
-        Student.student_name,
-        Student.usn,
-        Marks.course_code,
-        Marks.total_score,
-        Marks.category,
-        Teacher.teacher_name.label("supp_teacher_name")
-    ).join(
-        Marks, Student.student_id == Marks.student_id, isouter=True
-    ).join(
-        Supplementary,
-        and_(
-            Supplementary.student_id == Student.student_id,
-            Supplementary.course_code == Marks.course_code
-        ),
-        isouter=True
-    ).join(
-        Teacher,
-        Teacher.teacher_id == Supplementary.teacher_id,
-        isouter=True
+    rows = (
+        db.session.query(
+            Student.student_name,
+            Student.usn,
+            Marks.course_code,
+            Marks.total_score,
+            Marks.category,
+            Teacher.teacher_name.label("supp_teacher_name")
+        )
+        .join(Marks, Student.student_id == Marks.student_id, isouter=True)
+        .join(
+            Supplementary,
+            (Supplementary.student_id == Student.student_id) &
+            (Supplementary.course_code == Marks.course_code),
+            isouter=True
+        )
+        .join(Teacher, Teacher.teacher_id == Supplementary.teacher_id, isouter=True)
+        .all()
     )
 
-    if teacher_name:
-        # all teacher rows (courses) for this name
-        teacher_rows = Teacher.query.filter_by(teacher_name=teacher_name).all()
+    return render_template("monitor.html", rows=rows)
 
-        if not teacher_rows:
-            rows = []
-        else:
-            course_codes = [t.course_code for t in teacher_rows]
-            teacher_ids = [t.teacher_id for t in teacher_rows]
+@app.route("/band-analysis")
+def band_analysis():
+    # Calculate band counts
+    green = Marks.query.filter_by(category="green").count()
+    yellow = Marks.query.filter_by(category="yellow").count()
+    red = Marks.query.filter_by(category="red").count()
 
-            # show:
-            # - marks in courses this teacher teaches
-            # OR
-            # - students where this teacher is the supplementary teacher
-            rows = base_query.filter(
-                or_(
-                    Marks.course_code.in_(course_codes),
-                    Supplementary.teacher_id.in_(teacher_ids)
-                )
-            ).all()
-    else:
-        # admin view: show everything
-        rows = base_query.all()
+    labels = ["Green", "Yellow", "Red"]
+    data = [green, yellow, red]
 
-    return render_template("monitor.html", rows=rows, teacher_name=teacher_name)
+    return render_template(
+        "band_analysis.html",
+        labels=labels,
+        data=data
+    )
 
-
-# ---------------------------
-# Helper: simple health check
-# ---------------------------
-@app.route("/health")
-def health():
-    return {"status": "ok"}
-
-
-# ---------------------------
-# START APP
-# ---------------------------
+# ---------------------------------------------------
+# START SERVER
+# ---------------------------------------------------
 if __name__ == "__main__":
-    # Run in debug for development; remove debug=True for production
     app.run(debug=True)

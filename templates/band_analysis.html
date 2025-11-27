@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Band Analysis</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<header class="topbar">
+  <nav class="main-nav">
+    <a href="/">Dashboard</a>
+    <a href="/students">Students</a>
+    <a href="/teachers">Teachers</a>
+    <a href="/add-marks-page">Enter Marks</a>
+    <a href="/supplementary">Supplementary</a>
+    <a href="/band-analysis" class="active">Band Analysis</a>
+    <a href="/monitor">Monitor</a>
+    <a href="/logout" class="logout">Logout</a>
+  </nav>
+</header>
+
+<main class="page container">
+  <h2 class="page-title">Band Analysis</h2>
+
+  <div class="panel chart-panel" style="width: 90%; height: 420px; margin: 20px auto;">
+    <canvas id="bandChart"></canvas>
+  </div>
+</main>
+
+<!-- SAFE JSON DATA BLOCK -->
+<script type="application/json" id="band-data">
+{
+  "labels": {{ labels | tojson }},
+  "counts": {{ data | tojson }}
+}
+</script>
+
+<script>
+const bandData = JSON.parse(document.getElementById("band-data").textContent);
+
+new Chart(document.getElementById("bandChart"), {
+  type: "bar",
+  data: {
+    labels: bandData.labels,
+    datasets: [{
+      label: "Students in Each Band",
+      data: bandData.counts,
+      backgroundColor: ["#2ECC71", "#F1C40F", "#FF6B6B"]
+    }]
+  },
+  options: { responsive: true, maintainAspectRatio: false }
+});
+</script>
+
+</body>
+</html>

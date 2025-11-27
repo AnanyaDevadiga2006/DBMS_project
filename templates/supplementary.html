@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Supplementary Students</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo-icon">📝</div>
+    <div class="brand-text">
+      <div class="title">Supplementary</div>
+      <div class="subtitle">Students needing extra support</div>
+    </div>
+  </div>
+
+  <nav class="main-nav">
+    <a href="/">Dashboard</a>
+    <a href="/students">Students</a>
+    <a href="/teachers">Teachers</a>
+    <a href="/add-marks-page">Enter Marks</a>
+    <a href="/supplementary" class="active">Supplementary</a>
+    <a href="/band-analysis">Band Analysis</a>
+    <a href="/monitor">Monitor</a>
+    <a href="/logout" class="logout">Logout</a>
+  </nav>
+</header>
+
+<main class="page container">
+
+  <h2 class="page-title">Supplementary Students</h2>
+
+  <div class="panel">
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>USN</th>
+          <th>Course</th>
+          <th>Assigned Teacher</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {% for r in records %}
+        <tr>
+          <td>{{ r.student_name }}</td>
+          <td>{{ r.usn }}</td>
+          <td>{{ r.course_code }}</td>
+          <td>
+            <span class="pill red">{{ r.assigned_teacher }}</span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+</body>
+</html>

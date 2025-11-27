@@ -1,9 +1,26 @@
-<!DOCTYPE html>
-<html><head><title>Add Teacher</title><link rel="stylesheet" href="/static/style.css"></head>
-<body><h2>Add Teacher</h2>
-<form action="/add-teacher" method="POST" class="form-box">
-<label>Name</label><input name="name" required>
-<label>Course Code</label><input name="course" required>
-<label>Credits</label><input type="number" name="credit" required>
-<button type="submit">Save Teacher</button></form>
-<a href="/" class="back">← Back</a></body></html>
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8">
+<title>Add Teacher</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+<header class="topbar"><div class="brand">DPMS</div></header>
+
+<main class="container narrow">
+  <a class="back-link" href="/teachers">← Back</a>
+
+  <h2>Add Teacher</h2>
+
+  <form class="form" action="/add-teacher" method="POST">
+    <label>Name<input name="name" required></label>
+    <label>Course Code<input name="course" required></label>
+    <label>Credit<input type="number" name="credit" value="4"></label>
+
+    <button class="btn primary full" type="submit">Save</button>
+  </form>
+</main>
+
+</body>
+</html>
