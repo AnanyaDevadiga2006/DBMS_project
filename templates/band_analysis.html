@@ -10,6 +10,17 @@
 <body>
 
 <header class="topbar">
+  <div class="brand">
+
+    <img src="{{ url_for('static', filename='image.png') }}" 
+         alt="Logo" 
+         class="logo-icon-img">
+
+    <div class="brand-text">
+      <div class="title">DPMS</div>
+      <div class="subtitle">Student Performance Management</div>
+    </div>
+  </div>
   <nav class="main-nav">
     <a href="/">Dashboard</a>
     <a href="/students">Students</a>

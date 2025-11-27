@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Edit Course</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">DPMS</div>
+</header>
+
+<main class="container narrow">
+  <a class="back-link" href="/courses">← Back</a>
+
+  <h2>Edit Course</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="flash {{cat}}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form class="form" action="{{ url_for('edit_course', course_code=course.course_code) }}" method="POST">
+    <label>Course Code (cannot change)
+      <input value="{{ course.course_code }}" disabled>
+    </label>
+
+    <label>Credit
+      <input type="number" name="credit" value="{{ course.credit }}" min="0">
+    </label>
+
+    <button class="btn primary full" type="submit">Update</button>
+  </form>
+</main>
+</body>
+</html>

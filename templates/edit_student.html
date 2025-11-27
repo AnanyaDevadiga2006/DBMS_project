@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Edit Student</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar-min">
+  <div class="brand-min">DPMS</div>
+  <nav class="nav-min">
+    <a href="/">Dashboard</a>
+    <a href="/students" class="active">Students</a>
+    <a href="/teachers">Teachers</a>
+    <a href="/add-marks-page">Enter Marks</a>
+    <a href="/logout">Logout</a>
+  </nav>
+</header>
+
+<main class="container narrow">
+  <a class="back-link" href="/students">← Back</a>
+
+  <h2>Edit Student</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="flash {{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <!-- IMPORTANT: use usn here, NOT student_id -->
+  <form method="POST" action="{{ url_for('edit_student', usn=student.usn) }}" class="form">
+    <label>Student Name
+      <input type="text" name="name" value="{{ student.student_name }}" required>
+    </label>
+
+    <label>USN (cannot change)
+      <input type="text" value="{{ student.usn }}" disabled>
+    </label>
+
+    <label>Semester
+      <input type="number" name="sem" min="1" max="8" value="{{ student.sem }}">
+    </label>
+
+    <label>Section
+      <select name="section">
+        <option value="">-- Select Section --</option>
+        <option value="A" {% if student.section == 'A' %}selected{% endif %}>A</option>
+        <option value="B" {% if student.section == 'B' %}selected{% endif %}>B</option>
+        <option value="C" {% if student.section == 'C' %}selected{% endif %}>C</option>
+      </select>
+    </label>
+
+    <button class="btn primary full" type="submit">Update</button>
+  </form>
+</main>
+</body>
+</html>

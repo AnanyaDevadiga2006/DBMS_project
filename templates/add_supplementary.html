@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Add Supplementary Batch — DPMS</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+<header class="topbar-min">
+  <div class="brand-min">DPMS</div>
+  <nav class="nav-min">
+    <a href="/">Dashboard</a>
+    <a href="/students">Students</a>
+    <a href="/teachers">Teachers</a>
+    <a href="/supplementary" class="active">Supplementary</a>
+  </nav>
+</header>
+
+<main class="container narrow">
+  <a class="back-link" href="/supplementary">← Back to Supplementary</a>
+
+  <div class="panel form-panel">
+    <h2>Assign Supplementary for a Course</h2>
+    <p class="muted">
+      Pick a course and a teacher. All students in the <strong>red band</strong>
+      for that course will be added to supplementary.
+    </p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="flash {{cat}}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('add_supplementary') }}" method="POST" class="form-grid">
+      <label>Course
+        <select name="course_code" required>
+          <option value="">-- Select course --</option>
+          {% for c in courses %}
+            <option value="{{ c.course_code }}">{{ c.course_code }}</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <label>Teacher
+        <select name="teacher_id" required>
+          <option value="">-- Select teacher --</option>
+          {% for t in teachers %}
+            <option value="{{ t.tid }}">{{ t.teacher_name }} ({{ t.tid }})</option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <div class="form-actions">
+        <button class="btn primary" type="submit">Assign Supplementary</button>
+      </div>
+    </form>
+  </div>
+</main>
+</body>
+</html>

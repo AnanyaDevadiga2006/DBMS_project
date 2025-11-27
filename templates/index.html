@@ -5,12 +5,16 @@
   <title>DPMS — Dashboard</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="/static/style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
+
 <body>
 <header class="topbar">
   <div class="brand">
-    <div class="logo-icon">🎓</div>
+
+    <img src="{{ url_for('static', filename='image.png') }}" 
+         alt="Logo" 
+         class="logo-icon-img">
+
     <div class="brand-text">
       <div class="title">DPMS</div>
       <div class="subtitle">Student Performance Management</div>
@@ -20,6 +24,7 @@
   <nav class="main-nav">
     <a href="/" class="active">Dashboard</a>
     <a href="/students">Students</a>
+    <a href="/courses">Courses</a>
     <a href="/teachers">Teachers</a>
     <a href="/add-marks-page">Enter Marks</a>
     <a href="/supplementary">Supplementary</a>
@@ -30,41 +35,48 @@
 </header>
 
 <main class="page container">
-  <!-- top summary cards -->
+
+  <!-- SUMMARY CARDS -->
   <section class="summary-grid">
     <div class="card stat">
       <div class="stat-label">Total Students</div>
       <div class="stat-value">{{ total_students or 0 }}</div>
+      <a href="/add-student-page" class="stat-action-btn">+ Add Student</a>
     </div>
 
     <div class="card stat">
       <div class="stat-label">Total Teachers</div>
       <div class="stat-value">{{ total_teachers or 0 }}</div>
+      <a href="/add-teacher-page" class="stat-action-btn">+ Add Teacher</a>
     </div>
 
     <div class="card stat">
       <div class="stat-label">Average Score</div>
       <div class="stat-value">{{ avg_score or 0 }}</div>
+      <a href="/add-marks-page" class="stat-action-btn">Enter Marks</a>
     </div>
 
     <div class="card stat danger">
       <div class="stat-label">Supplementary</div>
       <div class="stat-value">{{ supp_count or 0 }}</div>
+      <a href="/supplementary" class="stat-action-btn">View Supplementary</a>
     </div>
   </section>
 
-  <!-- bands summary -->
+  <!-- BAND COUNTS -->
   <section class="bands-row">
     <div class="band-card green">
       <div class="band-title">Green Band</div>
       <div class="band-sub">≥ 40</div>
       <div class="band-count">{{ band_counts.green or 0 }}</div>
     </div>
+
     <div class="band-card yellow">
       <div class="band-title">Yellow Band</div>
       <div class="band-sub">20–39</div>
       <div class="band-count">{{ band_counts.yellow or 0 }}</div>
     </div>
+
     <div class="band-card red">
       <div class="band-title">Red Band</div>
       <div class="band-sub">&lt; 20</div>
@@ -72,99 +84,7 @@
     </div>
   </section>
 
-  <!-- charts -->
-  <section class="charts-grid">
-    <div class="panel chart-panel">
-      <h3 class="panel-title">Band Distribution</h3>
-      <canvas id="pieChart"></canvas>
-    </div>
-
-    <div class="panel chart-panel">
-      <h3 class="panel-title">Teacher Count per Course</h3>
-      <canvas id="barChart"></canvas>
-    </div>
-  </section>
-
-  <!-- performers & at-risk -->
-  <section class="panels-row">
-    <div class="panel">
-      <h3 class="panel-title">Top Performers</h3>
-      <div class="list">
-        {% if top_students %}
-          {% for name, score in top_students %}
-            <div class="list-item">
-              <div class="left">
-                <strong>{{ name }}</strong>
-                <div class="muted">Score: {{ score }}</div>
-              </div>
-              <div class="right"><span class="pill green">Top</span></div>
-            </div>
-          {% endfor %}
-        {% else %}
-          <div class="muted">No performer data.</div>
-        {% endif %}
-      </div>
-    </div>
-
-    <div class="panel">
-      <h3 class="panel-title">At-Risk Students (Red)</h3>
-      <div class="list">
-        {% if at_risk %}
-          {% for name, usn, score in at_risk %}
-            <div class="list-item">
-              <div class="left">
-                <strong>{{ name }}</strong>
-                <div class="muted">{{ usn }} — {{ score }}</div>
-              </div>
-              <div class="right"><span class="pill red">Needs Support</span></div>
-            </div>
-          {% endfor %}
-        {% else %}
-          <div class="muted">No at-risk students.</div>
-        {% endif %}
-      </div>
-    </div>
-  </section>
 </main>
 
-<!-- safe JSON data block to avoid VSCode linting and Jinja/JS issues -->
-<script id="dpms-data" type="application/json">
-{
-  "band": {
-    "green": {{ band_counts.green | default(0) }},
-    "yellow": {{ band_counts.yellow | default(0) }},
-    "red": {{ band_counts.red | default(0) }}
-  },
-  "dept_labels": {{ dept_labels | tojson }},
-  "dept_counts": {{ dept_counts | tojson }}
-}
-</script>
-
-<script>
-const dpms = JSON.parse(document.getElementById('dpms-data').textContent);
-
-// pie
-new Chart(document.getElementById('pieChart'), {
-  type: 'pie',
-  data: {
-    labels: ['Green','Yellow','Red'],
-    datasets: [{
-      data: [dpms.band.green, dpms.band.yellow, dpms.band.red],
-      backgroundColor: ['#2ECC71','#F1C40F','#FF6B6B']
-    }]
-  },
-  options: { responsive: true, maintainAspectRatio: false }
-});
-
-// bar
-new Chart(document.getElementById('barChart'), {
-  type: 'bar',
-  data: {
-    labels: dpms.dept_labels,
-    datasets: [{ label: 'Teachers', data: dpms.dept_counts, backgroundColor: '#6C5CE7' }]
-  },
-  options: { responsive: true, maintainAspectRatio: false }
-});
-</script>
 </body>
 </html>

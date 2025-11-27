@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Edit Marks</title>
+</head>
+<body>
+    <h2>Edit Marks</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul>
+          {% for category, message in messages %}
+            <li style="color:red">{{ message }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST"
+          action="{{ url_for('edit_marks',
+                             usn=marks.usn,
+                             course_code=marks.course_code) }}">
+
+        <label for="usn">USN</label><br>
+        <input type="text" id="usn"
+               value="{{ marks.usn }}"
+               disabled><br><br>
+
+        <label for="course">Course Code</label><br>
+        <input type="text" id="course"
+               value="{{ marks.course_code }}"
+               disabled><br><br>
+
+        <label for="ia1">IA1 (0–30)</label><br>
+        <input type="number" id="ia1" name="ia1"
+               min="0" max="30"
+               value="{{ marks.ia1 or 0 }}"><br><br>
+
+        <label for="ia2">IA2 (0–30)</label><br>
+        <input type="number" id="ia2" name="ia2"
+               min="0" max="30"
+               value="{{ marks.ia2 or 0 }}"><br><br>
+
+        <label for="ia3">IA3 (0–30)</label><br>
+        <input type="number" id="ia3" name="ia3"
+               min="0" max="30"
+               value="{{ marks.ia3 or 0 }}"><br><br>
+
+        <label for="assignment">Assignment (0–20)</label><br>
+        <input type="number" id="assignment" name="assignment"
+               min="0" max="20"
+               value="{{ marks.assignment or 0 }}"><br><br>
+
+        <button type="submit">Update Marks</button>
+        <a href="{{ url_for('monitor') }}">Cancel</a>
+    </form>
+</body>
+</html>

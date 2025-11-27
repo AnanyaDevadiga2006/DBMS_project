@@ -9,15 +9,25 @@
 <body class="centered">
   <div class="login-card">
     <h2>Teacher Login</h2>
+
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% if messages %}
-        {% for cat, msg in messages %}<div class="flash {{cat}}">{{ msg }}</div>{% endfor %}
+        {% for cat, msg in messages %}
+          <div class="flash {{cat}}">{{ msg }}</div>
+        {% endfor %}
       {% endif %}
     {% endwith %}
+
     <form action="/login" method="post" class="form-grid">
-      <label>Enter name<input type="text" name="teacher_name" required></label>
+      <label>Enter name
+        <input type="text" name="teacher_name" required>
+      </label>
       <button class="btn primary">Login</button>
     </form>
+
+    <div style="margin-top: 15px; text-align:center;">
+      <a href="/add-teacher-page" class="btn secondary">+ Add New Teacher</a>
+    </div>
   </div>
 </body>
 </html>

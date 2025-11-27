@@ -8,7 +8,17 @@
 </head>
 <body>
 <header class="topbar-min">
-  <div class="brand-min">DPMS</div>
+  <div class="brand">
+
+    <img src="{{ url_for('static', filename='image.png') }}" 
+         alt="Logo" 
+         class="logo-icon-img">
+
+    <div class="brand-text">
+      <div class="title">DPMS</div>
+      <div class="subtitle">Student Performance Management</div>
+    </div>
+  </div>
   <nav class="nav-min">
     <a href="/">Dashboard</a>
     <a href="/students" class="active">Students</a>
@@ -24,11 +34,19 @@
     <a class="btn primary" href="/add-student-page">+ Add Student</a>
   </div>
 
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="flash {{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
   <div class="cards-grid">
     {% for s in students %}
       <div class="profile-card">
         <div class="profile-left">
-          <div class="avatar">{{ s.student_name[0]|upper }}</div>
+          <div class="avatar">{{ s.student_name[0] | upper }}</div>
           <div>
             <div class="name">{{ s.student_name }}</div>
             <div class="muted">{{ s.usn }}</div>
@@ -39,8 +57,12 @@
           <div>Sem: {{ s.sem or '-' }}</div>
           <div>Sec: {{ s.section or '-' }}</div>
           <div class="actions">
-            <a class="btn small" href="#">View</a>
-            <a class="btn small ghost" href="#">Edit</a>
+            <a class="btn small" href="{{ url_for('monitor') }}?usn={{ s.usn }}">View</a>
+
+            <a class="btn small ghost"
+               href="{{ url_for('edit_student', usn=s.usn) }}">
+              Edit
+            </a>
           </div>
         </div>
       </div>

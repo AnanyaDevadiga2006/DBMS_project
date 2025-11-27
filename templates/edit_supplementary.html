@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Edit Supplementary — DPMS</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="{{ url_for('static', filename='image.png') }}" class="logo-img" alt="logo">
+    <div class="brand-text">
+      <div class="title">DPMS</div>
+      <div class="subtitle">Student Performance Management</div>
+    </div>
+  </div>
+
+  <nav class="main-nav">
+    <a href="/">Dashboard</a>
+    <a href="/students">Students</a>
+    <a href="/teachers">Teachers</a>
+    <a href="/add-marks-page">Enter Marks</a>
+    <a href="/supplementary" class="active">Supplementary</a>
+    <a href="/band-analysis">Band Analysis</a>
+    <a href="/monitor">Monitor</a>
+    <a href="/logout" class="logout">Logout</a>
+  </nav>
+</header>
+
+<main class="container narrow">
+
+  <a class="back-link" href="/supplementary">← Back to Supplementary</a>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="flash {{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <div class="panel form-panel">
+    <h2>Edit Supplementary Assignment</h2>
+
+    <p class="muted">
+      Update the teacher assigned for this student's supplementary class.
+    </p>
+
+    <div style="margin-bottom: 12px; font-size: 14px;">
+      <strong>USN:</strong> {{ supp.usn }}<br>
+      <strong>Course:</strong> {{ supp.course_code }}
+    </div>
+
+    <form action="{{ url_for('edit_supplementary', usn=supp.usn, course_code=supp.course_code) }}"
+          method="POST" class="form-grid">
+
+      <label>Assigned Teacher
+        <select name="teacher_id" required>
+          <option value="">-- Select teacher --</option>
+          {% for t in teachers %}
+            <option value="{{ t.tid }}"
+              {% if t.tid == supp.teacher_id %}selected{% endif %}>
+              {{ t.teacher_name }} ({{ t.tid }})
+            </option>
+          {% endfor %}
+        </select>
+      </label>
+
+      <div class="form-actions" style="grid-column: 1 / -1; margin-top: 10px;">
+        <button class="btn primary" type="submit">Save Changes</button>
+        <a class="btn ghost" href="/supplementary">Cancel</a>
+      </div>
+    </form>
+  </div>
+
+</main>
+
+</body>
+</html>

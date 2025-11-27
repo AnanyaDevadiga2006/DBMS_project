@@ -10,10 +10,14 @@
 
 <header class="topbar">
   <div class="brand">
-    <div class="logo-icon">📝</div>
+
+    <img src="{{ url_for('static', filename='image.png') }}" 
+         alt="Logo" 
+         class="logo-icon-img">
+
     <div class="brand-text">
-      <div class="title">Supplementary</div>
-      <div class="subtitle">Students needing extra support</div>
+      <div class="title">DPMS</div>
+      <div class="subtitle">Student Performance Management</div>
     </div>
   </div>
 
@@ -31,7 +35,20 @@
 
 <main class="page container">
 
-  <h2 class="page-title">Supplementary Students</h2>
+  <div class="page-header">
+    <h2 class="page-title">Supplementary Students</h2>
+    <a class="btn primary" href="/add-supplementary-page">
+      + Add Supplementary Batch
+    </a>
+  </div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="flash {{cat}}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
 
   <div class="panel">
     <table class="styled-table">
@@ -41,6 +58,7 @@
           <th>USN</th>
           <th>Course</th>
           <th>Assigned Teacher</th>
+          <th>Actions</th>
         </tr>
       </thead>
 
@@ -53,7 +71,24 @@
           <td>
             <span class="pill red">{{ r.assigned_teacher }}</span>
           </td>
+          <td>
+            <a class="btn small"
+               href="{{ url_for('edit_supplementary', usn=r.usn, course_code=r.course_code) }}">
+               Edit
+            </a>
+
+            <form action="{{ url_for('delete_supplementary', usn=r.usn, course_code=r.course_code) }}"
+                  method="POST"
+                  style="display:inline;">
+              <button class="btn small ghost"
+                      onclick="return confirm('Delete this supplementary record?');">
+                Delete
+              </button>
+            </form>
+          </td>
         </tr>
+        {% else %}
+        <tr><td colspan="5">No supplementary records found.</td></tr>
         {% endfor %}
       </tbody>
     </table>

@@ -12,14 +12,26 @@
   <nav class="nav-min">
     <a href="/">Dashboard</a>
     <a href="/students">Students</a>
-    <a href="/teachers">Teachers</a>
+    <a href="/courses">Courses</a>
+    <a href="/add-marks-page" class="active">Enter Marks</a>
+    <a href="/monitor">Monitor</a>
+    <a href="/logout">Logout</a>
   </nav>
 </header>
 
 <main class="container narrow">
   <div class="panel form-panel">
     <h2>Enter Marks</h2>
-    <form action="/add-marks" method="POST" class="form-grid">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="flash {{ cat }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('add_marks') }}" method="POST" class="form-grid">
       <label>Select Student (USN)
         <select name="usn" required>
           <option value="">-- pick student --</option>
@@ -29,8 +41,15 @@
         </select>
       </label>
 
-      <label>Course Code
-        <input type="text" name="course" placeholder="CS202" required>
+      <label>Course
+        <select name="course_code" required>
+          <option value="">-- pick course --</option>
+          {% for c in courses %}
+            <option value="{{ c.course_code }}">
+              {{ c.course_code }} ({{ c.credit }} cr)
+            </option>
+          {% endfor %}
+        </select>
       </label>
 
       <label>IA1 (out of 30)

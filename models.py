@@ -3,76 +3,84 @@ from flask_sqlalchemy import SQLAlchemy
 db = SQLAlchemy()
 
 
-# -------------------------------
-# STUDENT TABLE
-# -------------------------------
 class Student(db.Model):
     __tablename__ = "student"
 
-    student_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    usn = db.Column(db.String, primary_key=True)
     student_name = db.Column(db.String, nullable=False)
-    usn = db.Column(db.String, unique=True, nullable=False)
-    sem = db.Column(db.Integer)
-    section = db.Column(db.String)
+    sem = db.Column(db.Integer)          # you already have CHECK in raw SQL
+    section = db.Column(db.String)       # same here
 
 
-# -------------------------------
-# TEACHER TABLE
-# -------------------------------
 class Teacher(db.Model):
     __tablename__ = "teacher"
 
-    teacher_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    tid = db.Column(db.String, primary_key=True)  # TEXT PK
     teacher_name = db.Column(db.String, nullable=False)
-    course_code = db.Column(db.String, nullable=False)
+
+
+class Course(db.Model):
+    __tablename__ = "course"
+
+    course_code = db.Column(db.String, primary_key=True)
     credit = db.Column(db.Integer)
 
 
-# -------------------------------
-# MARKS TABLE
-# -------------------------------
-class Marks(db.Model):
-    __tablename__ = "marks"
+class Teaches(db.Model):
+    __tablename__ = "teaches"
 
-    mark_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
-    student_id = db.Column(
-        db.Integer,
-        db.ForeignKey("student.student_id", ondelete="CASCADE"),
+    tid = db.Column(
+        db.String,
+        db.ForeignKey("teacher.tid"),
+        primary_key=True,
         nullable=False
     )
+    course_code = db.Column(
+        db.String,
+        db.ForeignKey("course.course_code"),
+        primary_key=True,
+        nullable=False
+    )
+    sem = db.Column(db.Integer)
+    section = db.Column(db.String)
 
-    course_code = db.Column(db.String, nullable=False)
+    teacher = db.relationship("Teacher", backref="courses_taught")
+    course = db.relationship("Course", backref="teachers")
+
+
+class Marks(db.Model):
+    __tablename__ = "marks"
+    usn = db.Column(db.String, db.ForeignKey("student.usn"), primary_key=True)
+    course_code = db.Column(db.String, db.ForeignKey("course.course_code"), primary_key=True)
 
     ia1 = db.Column(db.Integer, default=0)
     ia2 = db.Column(db.Integer, default=0)
     ia3 = db.Column(db.Integer, default=0)
     assignment = db.Column(db.Integer, default=0)
 
-    # These will be filled by SQLite triggers
     total_score = db.Column(db.Integer)
     category = db.Column(db.String)
 
 
-# -------------------------------
-# SUPPLEMENTARY TABLE
-# -------------------------------
 class Supplementary(db.Model):
     __tablename__ = "supplementary"
 
-    supp_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-
-    student_id = db.Column(
-        db.Integer,
-        db.ForeignKey("student.student_id", ondelete="CASCADE"),
-        nullable=False
+    usn = db.Column(
+        db.String,
+        db.ForeignKey("student.usn", ondelete="CASCADE"),
+        primary_key=True
     )
-
-    course_code = db.Column(db.String, nullable=False)
-
+    course_code = db.Column(
+        db.String,
+        db.ForeignKey("course.course_code", ondelete="CASCADE"),
+        primary_key=True
+    )
     teacher_id = db.Column(
-        db.Integer,
-        db.ForeignKey("teacher.teacher_id", ondelete="CASCADE")
+        db.String,
+        db.ForeignKey("teacher.tid", ondelete="CASCADE"),
+        primary_key=True
     )
 
-    reason = db.Column(db.String)
+    student = db.relationship("Student", backref="supplementaries")
+    course = db.relationship("Course", backref="supplementaries")
+    teacher = db.relationship("Teacher", backref="supplementaries")

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Add Course</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">DPMS</div>
+</header>
+
+<main class="container narrow">
+  <a class="back-link" href="/courses">← Back</a>
+
+  <h2>Add Course</h2>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for cat, msg in messages %}
+        <div class="flash {{cat}}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form class="form" action="/add-course" method="POST">
+    <label>Course Code
+      <input name="course_code" required placeholder="e.g. 21CS51">
+    </label>
+
+    <label>Credit
+      <input type="number" name="credit" value="4" min="0">
+    </label>
+
+    <button class="btn primary full" type="submit">Save</button>
+  </form>
+</main>
+</body>
+</html>

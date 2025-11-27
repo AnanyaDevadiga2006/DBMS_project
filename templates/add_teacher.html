@@ -1,12 +1,15 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8">
-<title>Add Teacher</title>
-<link rel="stylesheet" href="/static/style.css">
+<head>
+  <meta charset="utf-8">
+  <title>Add Teacher</title>
+  <link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
-<header class="topbar"><div class="brand">DPMS</div></header>
+<header class="topbar">
+  <div class="brand">DPMS</div>
+</header>
 
 <main class="container narrow">
   <a class="back-link" href="/teachers">← Back</a>
@@ -14,9 +17,14 @@
   <h2>Add Teacher</h2>
 
   <form class="form" action="/add-teacher" method="POST">
-    <label>Name<input name="name" required></label>
-    <label>Course Code<input name="course" required></label>
-    <label>Credit<input type="number" name="credit" value="4"></label>
+
+    <label>Teacher ID (T01, T02, etc.)
+      <input name="tid" required placeholder="Enter Teacher ID">
+    </label>
+
+    <label>Teacher Name
+      <input name="name" required placeholder="Enter Teacher Name">
+    </label>
 
     <button class="btn primary full" type="submit">Save</button>
   </form>
