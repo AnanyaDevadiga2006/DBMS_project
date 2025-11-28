@@ -24,6 +24,8 @@ class Course(db.Model):
 
     course_code = db.Column(db.String, primary_key=True)
     credit = db.Column(db.Integer)
+    course_name = db.Column(db.String, nullable=False)
+    sem= db.Column(db.Integer)
 
 
 class Teaches(db.Model):

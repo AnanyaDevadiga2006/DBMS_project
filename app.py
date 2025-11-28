@@ -224,8 +224,10 @@ def add_course_page():
 @app.route("/add-course", methods=["POST"])
 def add_course():
     data = request.form
+    course_name = (data.get("course_name") or "").strip()
     course_code = (data.get("course_code") or "").strip()
     credit_raw = data.get("credit")
+    sem_raw = data.get("sem")
 
     if not course_code:
         flash("Course code is required", "error")
@@ -240,10 +242,14 @@ def add_course():
     if Course.query.get(course_code):
         flash("Course already exists", "error")
         return redirect("/add-course-page")
+    try:
+        c = Course(course_code=course_code, credit=credit,course_name=course_name,sem=int(sem_raw or 0))
+        db.session.add(c)
+        db.session.commit()
+    except ValueError:
+        flash("Semester must be a number", "error")
+        return redirect("/add-course-page")
 
-    c = Course(course_code=course_code, credit=credit)
-    db.session.add(c)
-    db.session.commit()
     flash("Course added successfully", "success")
     return redirect("/courses")
 
@@ -255,6 +261,8 @@ def edit_course(course_code):
     if request.method == "POST":
         data = request.form
         try:
+            course.course_name = data.get("course_name") or course.course_name
+            course.sem = int(data.get("sem") or course.sem or 0)
             course.credit = int(data.get("credit") or course.credit or 0)
         except ValueError:
             flash("Credit must be a number", "error")

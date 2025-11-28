@@ -31,6 +31,12 @@
     <label>Credit
       <input type="number" name="credit" value="{{ course.credit }}" min="0">
     </label>
+    <label>Course Name
+      <input type="text" name="course_name" value="{{ course.course_name }}">   
+    </label>
+    <label>Semester
+      <input type="number" name="sem" value="{{ course.sem }}" min="0">
+    </label>
 
     <button class="btn primary full" type="submit">Update</button>
   </form>

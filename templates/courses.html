@@ -51,8 +51,10 @@
       <table class="styled-table">
         <thead>
           <tr>
+            <th>Course Name</th>
             <th>Course Code</th>
             <th>Credit</th>
+            <th>Semester</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -60,8 +62,10 @@
         <tbody>
           {% for c in courses %}
           <tr>
+            <td>{{ c.course_name }}</td>
             <td><strong>{{ c.course_code }}</strong></td>
             <td>{{ c.credit }}</td>
+            <td>{{ c.sem }}</td>
             <td>
               <a class="btn tiny" href="{{ url_for('edit_course', course_code=c.course_code) }}">Edit</a>
             </td>
