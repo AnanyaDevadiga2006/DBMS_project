@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bulk Marks Entry</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background: #6c5ce7;
+            color: #fff;
+        }
+        input[type="number"] {
+            width: 70px;
+            padding: 5px;
+        }
+        .btn-save {
+            background: #6c5ce7;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .filters {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+        }
+        select {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #bbb;
+        }
+    </style>
+</head>
+<body>
+
+<header class="topbar">
+    <div class="brand">Bulk Marks Entry</div>
+</header>
+
+<main class="container">
+
+    <h2>Enter Marks (Excel Style)</h2>
+
+    <form method="GET" action="/marks-bulk">
+        <div class="filters">
+            <select name="sem" required>
+                <option value="">Select Semester</option>
+                {% for s in range(1, 9) %}
+                <option value="{{ s }}" {% if sem==s %}selected{% endif %}>Semester {{ s }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="section" required>
+                <option value="">Select Section</option>
+                {% for sec in ['A','B','C','D'] %}
+                <option value="{{ sec }}" {% if section==sec %}selected{% endif %}>{{ sec }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="course" required>
+                <option value="">Select Course</option>
+                {% for c in courses %}
+                <option value="{{ c.course_code }}" {% if course==c.course_code %}selected{% endif %}>{{ c.course_code }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit" class="btn-save">Load Students</button>
+        </div>
+    </form>
+
+
+    {% if students %}
+
+    <form method="POST" action="/marks-bulk-save">
+        <input type="hidden" name="course" value="{{ course }}">
+
+        <table>
+            <tr>
+                <th>Name</th>
+                <th>USN</th>
+                <th>IA1</th>
+                <th>IA2</th>
+                <th>IA3</th>
+                <th>Assignment</th>
+            </tr>
+
+            {% for s in students %}
+            <tr>
+                <td>{{ s.student_name }}</td>
+                <td>{{ s.usn }}</td>
+
+                <input type="hidden" name="usn[]" value="{{ s.usn }}">
+
+                <td><input type="number" name="ia1[]" min="0" max="30"></td>
+                <td><input type="number" name="ia2[]" min="0" max="30"></td>
+                <td><input type="number" name="ia3[]" min="0" max="30"></td>
+                <td><input type="number" name="assignment[]" min="0" max="20"></td>
+            </tr>
+            {% endfor %}
+        </table>
+
+        <button class="btn-save">Save All Marks</button>
+    </form>
+
+    {% endif %}
+
+</main>
+
+</body>
+</html>

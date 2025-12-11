@@ -9,7 +9,7 @@ from sqlalchemy import func
 # APP + DB SETUP
 # ---------------------------------------------------
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///dpms.db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///DPMS.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = 'your-secret-key'
 

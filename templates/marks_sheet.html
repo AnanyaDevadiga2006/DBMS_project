@@ -1,0 +1,27 @@
+@app.route("/save-marks-sheet", methods=["POST"])
+def save_marks_sheet():
+    rows = request.form
+
+    total = int(rows.get("total_rows"))
+
+    for i in range(1, total + 1):
+        student_id = rows.get(f"student_id_{i}")
+        course = rows.get("course_code")
+
+        ia1 = rows.get(f"ia1_{i}") or 0
+        ia2 = rows.get(f"ia2_{i}") or 0
+        ia3 = rows.get(f"ia3_{i}") or 0
+        assignment = rows.get(f"assignment_{i}") or 0
+
+        mark = Marks(
+            student_id=student_id,
+            course_code=course,
+            ia1=ia1,
+            ia2=ia2,
+            ia3=ia3,
+            assignment=assignment,
+        )
+        db.session.add(mark)
+
+    db.session.commit()
+    return redirect("/marks-sheet")
